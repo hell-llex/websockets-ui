@@ -5,7 +5,7 @@ import {
 	// attackControllerForBot,
 	createRoomController,
 	createUserController,
-	// singleGameController,
+	singleGameController,
 } from '../controller';
 import { getGameRoomByIdStore } from '../store/gameStore';
 import { WebSocketMessage } from '../types';
@@ -39,10 +39,9 @@ export const router = async (clientId: string, data: WebSocketMessage) => {
 			reqParse.data.y = Math.floor(Math.random() * 10);
 			return await attackController(clientId, { ...reqParse, data: JSON.stringify(reqParse.data) });
 			break;
-		// case 'single_play':
-		// 	// return await addShipsController(clientId, data);
-		// 	return await singleGameController(clientId, data);
-		// 	break;
+		case 'single_play':
+			return await singleGameController(clientId, data);
+			break;
 		default:
 			break;
 	}
