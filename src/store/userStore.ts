@@ -1,21 +1,23 @@
-// store/userStore.ts
 import { User } from '../types';
 
-let users: User[] = [];
+const users = new Map<string, User>();
 
-export const getUsersStore = async (): Promise<User[]> => users;
+export const getUsersStore = async (): Promise<User[]> => Array.from(users.values());
+
+export const getUserByIdStore = async (clientId: string): Promise<User | undefined> => {
+	return users.get(clientId);
+};
 
 export const addUserStore = async (user: User): Promise<void> => {
-	users.push(user);
+	users.set(user.clientId, user);
 };
 
 export const updateUserStore = async (updatedUser: User): Promise<void> => {
-	const index = users.findIndex((u) => u.id === updatedUser.id);
-	if (index !== -1) {
-		users[index] = updatedUser;
+	if (users.has(updatedUser.clientId)) {
+		users.set(updatedUser.clientId, updatedUser);
 	}
 };
 
 export const deleteUserStore = async (userId: string): Promise<void> => {
-	users = users.filter((u) => u.id !== userId);
+	users.delete(userId);
 };
