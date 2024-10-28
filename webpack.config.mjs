@@ -6,7 +6,7 @@ import webpackNodeExternals from 'webpack-node-externals';
 const isProduction = process.env.NODE_ENV === 'production';
 
 export default {
-  entry: './src/index.ts',
+  entry: './src/server.ts',
   target: 'node',
   output: {
     filename: 'bundle.js',
