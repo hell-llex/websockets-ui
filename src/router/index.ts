@@ -1,18 +1,14 @@
-// import { WebSocket } from 'ws';
 import {
 	addShipsController,
 	addUserToRoomController,
 	attackController,
 	createRoomController,
 	createUserController,
-	// validateUserController
 } from '../controller';
 import { getGameRoomByIdStore } from '../store/gameStore';
 import { WebSocketMessage } from '../types';
 
 export const router = async (clientId: string, data: WebSocketMessage) => {
-	// console.log('data :>> ', data);
-
 	switch (data.type) {
 		case 'reg':
 			return await createUserController(clientId, data);
@@ -37,20 +33,5 @@ export const router = async (clientId: string, data: WebSocketMessage) => {
 			break;
 		default:
 			break;
-		// case 'reg':
-		// 	await createUserController(data.payload);
-		// 	break;
-		// case 'reg':
-		// 	await createUserController(data.payload);
-		// 	break;
-		// case 'reg':
-		// 	await createUserController(data.payload);
-		// 	break;
-
-		// case 'validate_user':
-		// 	await validateUserController(data.payload);
-		// 	break;
-
-		// Обработка других сообщений
 	}
 };
