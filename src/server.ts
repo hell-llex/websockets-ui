@@ -18,7 +18,7 @@ wss.on('connection', async (ws: WebSocket) => {
 
 	ws.on('message', async (message) => {
 		const data: WebSocketMessage = JSON.parse(message.toString());
-		console.log(`Получение сообщения ${data.type} от ${clientId}`);
+		console.log(`Request ${message.toString()} от ${clientId}`);
 		await router(clientId, data);
 	});
 

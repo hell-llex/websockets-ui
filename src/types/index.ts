@@ -41,7 +41,7 @@ export interface Players {
 	clientId: string;
 	name: string;
 	idPlayer: string;
-	ships?: Ship[];
+	ships: Ship[];
 }
 
 export type UserYourTurn = 0 | 1;

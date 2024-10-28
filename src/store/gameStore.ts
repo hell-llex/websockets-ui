@@ -50,3 +50,7 @@ export const createTurnManagerStore = () => {
 		return gameRoom.roomUsers[gameRoom.userYourTurn].idPlayer;
 	};
 };
+
+export const deleteGameRoomStore = async (idGame: string): Promise<void> => {
+	gameRooms.delete(idGame);
+};

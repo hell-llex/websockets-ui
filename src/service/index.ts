@@ -1,8 +1,9 @@
 import { GameRoom, Ship, User, UserYourTurn, WebSocketMessage } from '../types';
-import { addUserStore, getUserByIdStore, getUsersStore } from '../store/userStore';
+import { addUserStore, getUserByIdStore, getUsersStore, updateUserStore } from '../store/userStore';
 import {
 	addUserToRoomStore,
 	createRoomStore,
+	deleteRoomStore,
 	getRoomByIdStore,
 	getRoomsStore,
 } from '../store/roomStore';
@@ -30,12 +31,16 @@ export const createUserService = async (clientId: string, req: WebSocketMessage)
 	};
 	try {
 		const users = await getUsersStore();
-		const userExists = users.some((user: User) => user.name === reqParse.data.name);
+		const userExists = users.find((user: User) => user.name === reqParse.data.name);
 		if (userExists) {
+			if (userExists.password !== reqParse.data.password) {
+				throw new Error('Invalid password!');
+			}
+			userExists.clientId = clientId;
+			updateUserStore(userExists);
 		} else {
 			await addUserStore({ clientId: clientId, ...reqParse.data, wins: 0 });
 		}
-
 		return res;
 	} catch (error: any) {
 		return {
@@ -57,6 +62,7 @@ export const createRoomService = async (clientId: string) => {
 
 export const updateWinnersService = async () => {
 	const winners = (await getUsersStore()).filter((winner) => winner.wins !== 0);
+	winners.sort((a, b) => b.wins - a.wins);
 	return {
 		type: 'update_winners',
 		data: winners,
@@ -66,7 +72,12 @@ export const updateWinnersService = async () => {
 
 export const updateRoomService = async () => {
 	const rooms = await getRoomsStore();
-	const validRooms = rooms.filter((room) => room.roomUsers.length <= 1);
+	const validRooms: any[] = [];
+	rooms.forEach((room) => {
+		if (room.roomUsers.length <= 1) {
+			validRooms.push(room);
+		}
+	});
 	return {
 		type: 'update_room',
 		data: validRooms,
@@ -77,8 +88,9 @@ export const updateRoomService = async () => {
 export const addUserToRoomService = async (clientId: string, req: WebSocketMessage) => {
 	const reqParse = { ...req, data: JSON.parse(req.data) };
 	const user = await getUserByIdStore(clientId);
-	if (user)
-		return await addUserToRoomStore(reqParse.data.indexRoom, {
+	const room = await getRoomByIdStore(reqParse.data.indexRoom);
+	if (user && room && room.roomUsers[0].index !== clientId)
+		return await addUserToRoomStore(room.roomId, {
 			name: user.name,
 			index: user.clientId,
 		});
@@ -97,11 +109,17 @@ export const createGameService = async (roomId: string) => {
 					idPlayer: generateId(),
 					name: roomUser.name,
 					clientId: roomUser.index,
+					ships: [],
 				};
 			}),
 		};
+		if (gameRoom.roomUsers[1].name === 'bot') {
+			gameRoom.idGame = 'bot' + generateId();
+			gameRoom.roomUsers[1].idPlayer = 'bot' + generateId();
+		}
 		gameRoom.currentPlayer = gameRoom.roomUsers[0].idPlayer;
 		await addGameRoomStore(gameRoom.idGame, gameRoom);
+		await deleteRoomStore(gameRoom.roomId);
 		return gameRoom;
 	}
 };
@@ -187,7 +205,6 @@ export const attackService = async (_clientId: string, req: WebSocketMessage) =>
 	const reqParse = { ...req, data: JSON.parse(req.data) };
 	const { gameId, x, y, indexPlayer } = reqParse.data;
 	const attackPosition = { x, y };
-
 	const game = await getGameRoomByIdStore(gameId);
 	const attackerId = indexPlayer;
 
@@ -220,6 +237,10 @@ export const attackService = async (_clientId: string, req: WebSocketMessage) =>
 
 				ship.hitPositions.push(attackPosition);
 
+				ship.hitPositions = Array.from(
+					new Map(ship.hitPositions.map((pos: any) => [JSON.stringify(pos), pos])).values()
+				);
+
 				status = ship.hitPositions.length === ship.length ? 'killed' : 'shot';
 				sendPosition =
 					status === 'killed' ? [attackPosition, ...getSurroundingCells(ship)] : [attackPosition];
@@ -242,6 +263,28 @@ export const attackService = async (_clientId: string, req: WebSocketMessage) =>
 				status,
 			},
 			sendPosition,
+		};
+	}
+};
+
+export const checkWinsPlayerService = async (
+	game: GameRoom,
+	clientId: string,
+	currentPlayer: string
+) => {
+	const hitPositionsEnemy: any[] = [];
+	game.roomUsers.forEach((user) => {
+		if (user.clientId !== clientId) {
+			user.ships?.forEach((ship) => {
+				if (ship.hitPositions) hitPositionsEnemy.push(...ship.hitPositions);
+			});
+		}
+	});
+
+	if (hitPositionsEnemy.flat(2).length === 20) {
+		return {
+			clientId,
+			currentPlayer,
 		};
 	}
 };
