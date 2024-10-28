@@ -6,7 +6,7 @@ export const generateId = () => String(crypto.randomBytes(10).toString('hex')); 
 
 export const unicast = async (wsS: WebSocket | undefined, res: WebSocketMessage) => {
 	if (wsS) {
-		console.log('Response', JSON.stringify({ ...res, data: JSON.stringify(res.data) }));
+		console.log('---\nResponse', JSON.stringify({ ...res, data: JSON.stringify(res.data) }));
 		return wsS.send(JSON.stringify({ ...res, data: JSON.stringify(res.data) }));
 	}
 };
@@ -14,7 +14,7 @@ export const unicast = async (wsS: WebSocket | undefined, res: WebSocketMessage)
 export const broadcast = async (clients: WebSocket[], res: WebSocketMessage) => {
 	clients.forEach((client: { readyState: number; send: (arg0: string) => void }) => {
 		if (client.readyState === WebSocket.OPEN) {
-			console.log('Response', JSON.stringify({ ...res, data: JSON.stringify(res.data) }));
+			console.log('---\nResponse', JSON.stringify({ ...res, data: JSON.stringify(res.data) }));
 			client.send(JSON.stringify({ ...res, data: JSON.stringify(res.data) }));
 		}
 	});
