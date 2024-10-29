@@ -1,31 +1,52 @@
-# RSSchool NodeJS websocket task template
-> Static http server and base task packages. 
-> By default WebSocket client tries to connect to the 3000 port.
+# WebSocket Task
 
-## Installation
-1. Clone/download repo
-2. `npm install`
+## Описание
 
-## Usage
-**Development**
+Этот проект представляет собой шаблон для выполнения задач удаленного управления с использованием WebSocket. Он написан на TypeScript и использует библиотеку `ws` для работы с WebSocket.
 
-`npm run start:dev`
+## Установка
 
-* App served @ `http://localhost:8181` with nodemon
+1. Склонируйте репозиторий или загрузите архив с проектом.
+2. Установите зависимости с помощью npm:
 
-**Production**
+   ```bash
+   npm install
 
-`npm run start`
+Скрипты
 
-* App served @ `http://localhost:8181` without nodemon
+В проекте есть несколько npm-скриптов для разработки и сборки:
 
----
+	•	build: Сборка проекта с использованием Webpack.
+	•	start:dev: Запуск сервера в режиме разработки с помощью ts-node-dev.
+	•	start: Сборка проекта и запуск собранного приложения.
+	•	start:front: Запуск фронтенд-приложения.
+	•	start:front:dev: Запуск фронтенд-приложения в режиме разработки с помощью nodemon.
 
-**All commands**
+Использование
 
-Command | Description
---- | ---
-`npm run start:dev` | App served @ `http://localhost:8181` with nodemon
-`npm run start` | App served @ `http://localhost:8181` without nodemon
+	1.	Запустите сервер в режиме разработки:
 
-**Note**: replace `npm` with `yarn` in `package.json` if you use yarn.
+npm run start:dev
+
+Это откроет сервер, который будет слушать входящие WebSocket соединения.
+
+	2.	Для запуска собранного приложения используйте:
+
+npm start
+
+
+
+Структура проекта
+
+	•	src/: Исходные файлы проекта.
+	•	dist/: Скомпилированные файлы приложения (выходные файлы Webpack).
+	•	webpack.config.mjs: Конфигурация для сборки с помощью Webpack.
+
+Зависимости
+
+Проект использует следующие зависимости:
+
+	•	dotenv: Для работы с переменными окружения.
+	•	ws: Библиотека для работы с WebSocket.
+	•	typescript: Язык программирования для разработки приложения.
+	•	И другие зависимости для разработки и тестирования.
